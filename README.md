@@ -4,7 +4,7 @@
 ## The Problem
 Developers at a company often need a way to work with various projects, pieces of infrastructure, containers, services, etc. and use separate tools for each.
 
-Each tool must be installed, configured, and managed separately and even just getting everything installed can be a chore. Often there's some kind of long installation article a developer uses to get started. But the document is out of date and takes a while to get through.
+Each tool must be installed, configured, and managed separately and even just getting everything installed can be a chore. Often there's some kind of long installation article a developer uses to get started. But the document is out of date and takes hours to complete.
 
 Wouldn't it be nice if on Day 0 a developer could be handed a short list of commands to run on their workstation to have their environment configured?
 
