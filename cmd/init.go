@@ -25,13 +25,11 @@ import (
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Initialize dx for your environment",
+	Long: `dx init will create a config file at $HOME/.dx.yaml
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+See the dx README for more information about configuration.
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("init called")
 	},
