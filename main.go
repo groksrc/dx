@@ -1,65 +1,23 @@
+/*
+Copyright © 2022 Drew Cain -- @groksrc
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 package main
 
-import (
-	"fmt"
-	"log"
-	"os"
-
-	"github.com/urfave/cli"
-)
-
-var app = cli.NewApp()
-
-func info() {
-	app.Name = "dx"
-	app.Usage = "Generate a CLI for your dev team"
-	app.Author = "groksrc"
-	app.Version = "0.0.1"
-}
-
-func commands() {
-	app.Commands = []cli.Command{
-		{
-			Name: "init",
-			Aliases: []string{"i"},
-			Usage: "Initialize your project",
-			Action: func(c *cli.Context) error {
-				fmt.Printf("Inited %q", c.Args().Get(0))
-				return nil
-			},
-		},
-		{
-			Name: "cli",
-			Aliases: []string{"c"},
-			Usage: "Create your company CLI",
-			Subcommands: []cli.Command{
-				{
-					Name: "create",
-					Category: "cli",
-					Action: func(c *cli.Context) error {
-						fmt.Printf("not implemented. Open a PR %q", c.Args().Get(0))
-						return nil
-					},
-				},
-				{
-					Name: "update",
-					Category: "cli",
-					Action: func(c *cli.Context) error {
-						fmt.Printf("not implemented. Open a PR %q", c.Args().Get(0))
-						return nil
-					},
-				},
-			},
-		},
-	}
-}
+import "github.com/groksrc/dx/cmd"
 
 func main() {
-	info()
-	commands()
-
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatal(err)
-	}
+	cmd.Execute()
 }
