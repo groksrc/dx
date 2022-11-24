@@ -78,11 +78,12 @@ func setDefault(params ...string) {
 	viper.Set(params[0], strings.TrimSpace(val))
 }
 
+// TODO: Set cobra config
 func initializeConfig(cmd *cobra.Command, args []string) {
 	viper.SafeWriteConfig()
 	setDefault("company", "Enter your company name:")
 	setDefault("cli", "Enter cli name:")
-	setDefault("outdir", "Enter the output directory: [./]", "./")
+	setDefault("outdir", "Enter the output directory: [./out]", "./out")
 	if err := viper.WriteConfig(); err != nil {
 		log.Fatal(err)
 	} else {

@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	// "bufio"
-	// "log"
 	"fmt"
-	// "os"
+	"log"
+	"os"
+	"os/exec"
 
 	"github.com/spf13/cobra"
-	// "github.com/spf13/viper"
-
+	"github.com/spf13/viper"
 )
+
+type Config struct{ cli, company, outdir string }
 
 var buildCmd = &cobra.Command{
 	Use:   "build",
@@ -19,20 +20,68 @@ var buildCmd = &cobra.Command{
 See the dx README for more information about configuration.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("building cli")
+		build()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
+}
 
-	// Here you will define your flags and configuration settings.
+func build() {
+	config := loadConfig()
+	fmt.Printf("Creating %s CLI in %s for %s\n", config.cli, config.outdir, config.company)
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// initCmd.PersistentFlags().String("foo", "", "A help for foo")
+	generate(config)
+}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func generate(config Config) {
+	if err := os.MkdirAll(config.outdir, os.ModePerm); err != nil {
+		log.Println(err)
+	}
+	render(config)
+}
+
+func render(config Config) {
+	installCobra()
+	cobraInit(config)
+}
+
+func cobraInit(config Config) {
+	if err := os.Chdir(config.outdir); err != nil {
+		log.Fatal(err)
+	}
+
+	cmd := exec.Command("cobra-cli", "init", config.cli)
+	if err := cmd.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func installCobra() {
+	if _, err := exec.LookPath("cobra-cli"); err != nil {
+		fmt.Println("Installing Cobra")
+		cmd := exec.Command("go", "install", "github.com/spf13/cobra-cli@latest")
+		if err := cmd.Run(); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func loadConfig() Config {
+	settings := viper.AllSettings()
+
+	if settings["cli"] == "" {
+		log.Fatal("cli config value missing")
+	}
+
+	if settings["company"] == "" {
+		log.Fatal("company config value missing")
+	}
+
+	cli := settings["cli"].(string)
+	company := settings["company"].(string)
+	outdir := settings["outdir"].(string)
+
+	return Config{cli, company, outdir}
 }
