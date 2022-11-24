@@ -17,9 +17,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"bufio"
+	"log"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"golang.org/x/exp/slices"
 )
 
 // initCmd represents the init command
@@ -31,7 +37,15 @@ var initCmd = &cobra.Command{
 See the dx README for more information about configuration.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("init called")
+		if err := viper.ReadInConfig(); err != nil {
+			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+				initializeConfig(cmd, args)
+			} else {
+				overwrite("A config was found but could not be read. Overwrite? [Y/n]", cmd, args)
+			}
+		} else {
+			overwrite("A config was found. Overwrite? [Y/n]", cmd, args)
+		}
 	},
 }
 
@@ -47,4 +61,40 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func setDefault(params ...string) {
+	fmt.Println(params[1])
+	reader := bufio.NewReader(os.Stdin)
+	val, err := reader.ReadString('\n')
+	if err != nil {
+			log.Fatal(err)
+	}
+
+	if val == "\n" && len(params) == 3 {
+		val = params[2]
+	}
+	viper.Set(params[0], val)
+}
+
+func initializeConfig(cmd *cobra.Command, args []string) {
+	viper.SafeWriteConfig()
+	setDefault("company", "Enter your company name:")
+	setDefault("cli", "Enter cli name:")
+	setDefault("outdir", "Enter the output directory: [./]", "./")
+	if err := viper.WriteConfig(); err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Println("dx init success!")
+	}
+}
+
+func overwrite(message string, cmd *cobra.Command, args []string) {
+	fmt.Println(message)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	yes := scanner.Text()
+	if (slices.Contains([]string{"Y", "y", ""}, yes)) {
+		initializeConfig(cmd, args)
+	}
 }
