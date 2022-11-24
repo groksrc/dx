@@ -21,6 +21,7 @@ import (
 	"log"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -74,7 +75,7 @@ func setDefault(params ...string) {
 	if val == "\n" && len(params) == 3 {
 		val = params[2]
 	}
-	viper.Set(params[0], val)
+	viper.Set(params[0], strings.TrimSpace(val))
 }
 
 func initializeConfig(cmd *cobra.Command, args []string) {
