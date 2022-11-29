@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"log"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -58,6 +59,8 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dx.yaml)")
+
+	log.SetFlags(0)
 }
 
 // initConfig reads in config file and ENV variables if set.
