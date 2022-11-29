@@ -12,27 +12,32 @@ import (
 
 type Config struct{ cli, company, outdir string }
 
-var buildCmd = &cobra.Command{
-	Use:   "build",
-	Short: "Builds your CLI in the outdir",
-	Long: `dx build creates your CLI in the output directory
+var createCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Creates your CLI in the outdir",
+	Long: `Creates your CLI in the output directory
 
 See the dx README for more information about configuration.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		build()
+		create(args)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(buildCmd)
+	cliCmd.AddCommand(createCmd)
 }
 
-func build() {
+func create(args []string) {
 	config := loadConfig()
+	if len(args) == 3 {
+		config.cli = args[0]
+		config.outdir = args[1]
+		config.company = args[2]
+	}
 	fmt.Printf("Creating %s CLI in %s for %s\n", config.cli, config.outdir, config.company)
 
-	generate(config)
+	// generate(config)
 }
 
 func generate(config Config) {
@@ -71,13 +76,13 @@ func installCobra() {
 func loadConfig() Config {
 	settings := viper.AllSettings()
 
-	if settings["cli"] == "" {
-		log.Fatal("cli config value missing")
-	}
+	// if settings["cli"] == "" {
+	// 	log.Fatal("cli config value missing")
+	// }
 
-	if settings["company"] == "" {
-		log.Fatal("company config value missing")
-	}
+	// if settings["company"] == "" {
+	// 	log.Fatal("company config value missing")
+	// }
 
 	cli := settings["cli"].(string)
 	company := settings["company"].(string)
