@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"regexp"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -15,7 +16,17 @@ type Config struct{ cli, company, outdir string }
 var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Creates your CLI in the outdir",
-	Long: `Creates your CLI in the output directory
+	Long: `Creates your CLI in the output directory.
+
+Required parameters: cli, outdir, company
+
+cli: The name of your company CLI. Must not contain whitespace.
+outdir: The output directory where your CLI will be created. Must be a valid directory.
+company: The name of your company.
+
+These parameters can be specified in your dx config file or as arguments to the command.
+
+Arguments to the command take precedence over values in the config file.
 
 See the dx README for more information about configuration.
 	`,
@@ -30,14 +41,24 @@ func init() {
 
 func create(args []string) {
 	config := loadConfig()
-	if len(args) == 3 {
+
+	if len(args) > 0 {
 		config.cli = args[0]
+	}
+
+	if len(args) > 1 {
 		config.outdir = args[1]
+	}
+
+	if len(args) > 2 {
 		config.company = args[2]
 	}
+
+	validate(config)
+
 	fmt.Printf("Creating %s CLI in %s for %s\n", config.cli, config.outdir, config.company)
 
-	// generate(config)
+	generate(config)
 }
 
 func generate(config Config) {
@@ -76,17 +97,48 @@ func installCobra() {
 func loadConfig() Config {
 	settings := viper.AllSettings()
 
-	// if settings["cli"] == "" {
-	// 	log.Fatal("cli config value missing")
-	// }
+	cli := ""
+	if settings["cli"] != nil {
+		cli = settings["cli"].(string)
+	}
 
-	// if settings["company"] == "" {
-	// 	log.Fatal("company config value missing")
-	// }
+	company := ""
+	if settings["company"] != nil {
+	  company = settings["company"].(string)
+	}
 
-	cli := settings["cli"].(string)
-	company := settings["company"].(string)
-	outdir := settings["outdir"].(string)
+	outdir := ""
+	if settings["outdir"] != nil {
+		outdir = settings["outdir"].(string)
+	}
 
 	return Config{cli, company, outdir}
+}
+
+func validate(config Config) {
+	validateCli(config.cli)
+	validateOutdir(config.outdir)
+	validateCompany(config.company)
+}
+
+func validateCli(cli string) {
+	validateRequired(cli, "cli")
+	if regexp.MustCompile(`\s`).MatchString(cli) {
+		log.Fatal("cli name cannot contain whitespace")
+	}
+}
+
+func validateOutdir(outdir string) {
+	validateRequired(outdir, "outdir")
+	// TODO: validate path
+}
+
+func validateCompany(company string) {
+	validateRequired(company, "company")
+}
+
+func validateRequired(val string, name string) {
+	if val == "" {
+		log.Fatalf("%s is a required parameter", name)
+	}
 }
