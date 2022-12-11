@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 
 	"github.com/spf13/cobra"
@@ -61,6 +62,27 @@ func create(args []string) {
 	generate(config)
 }
 
+func loadConfig() Config {
+	settings := viper.AllSettings()
+
+	cli := ""
+	if settings["cli"] != nil {
+		cli = settings["cli"].(string)
+	}
+
+	company := ""
+	if settings["company"] != nil {
+		company = settings["company"].(string)
+	}
+
+	outdir := ""
+	if settings["outdir"] != nil {
+		outdir = settings["outdir"].(string)
+	}
+
+	return Config{cli, company, outdir}
+}
+
 func generate(config Config) {
 	if err := os.MkdirAll(config.outdir, os.ModePerm); err != nil {
 		log.Println(err)
@@ -71,16 +93,8 @@ func generate(config Config) {
 func render(config Config) {
 	installCobra()
 	cobraInit(config)
-}
-
-func cobraInit(config Config) {
-	if err := os.Chdir(config.outdir); err != nil {
-		log.Fatal(err)
-	}
-
-	cmd := exec.Command("cobra-cli", "init", config.cli)
-	if err := cmd.Run(); err != nil {
-		log.Fatal(err)
+	if err := viperInit(config); err != nil {
+		log.Fatal((err))
 	}
 }
 
@@ -94,25 +108,40 @@ func installCobra() {
 	}
 }
 
-func loadConfig() Config {
-	settings := viper.AllSettings()
-
-	cli := ""
-	if settings["cli"] != nil {
-		cli = settings["cli"].(string)
+func cobraInit(config Config) {
+	if err := os.Chdir(config.outdir); err != nil {
+		log.Fatal(err)
 	}
 
-	company := ""
-	if settings["company"] != nil {
-	  company = settings["company"].(string)
+	cmd := exec.Command("cobra-cli", "init", config.cli)
+	if err := cmd.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func viperInit(config Config) error {
+
+	// TODO: Fix relative paths, ~, $HOME, etc
+	filePath := filepath.Join(config.outdir, config.cli, fmt.Sprintf(".%s.yaml", config.cli))
+
+	f, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	stringsToWrite := []string{
+		fmt.Sprintf("cli: %s\n", config.cli),
+		fmt.Sprintf("company: %s\n", config.company),
+		fmt.Sprintf("commands:\n")}
+
+	for _, str := range stringsToWrite {
+		if _, err = f.WriteString(str); err != nil {
+			return err
+		}
 	}
 
-	outdir := ""
-	if settings["outdir"] != nil {
-		outdir = settings["outdir"].(string)
-	}
-
-	return Config{cli, company, outdir}
+	return nil
 }
 
 func validate(config Config) {
