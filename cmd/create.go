@@ -9,7 +9,6 @@ import (
 	"regexp"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 type Config struct{ cli, company, outdir string }
@@ -60,27 +59,6 @@ func create(args []string) {
 	fmt.Printf("Creating %s CLI in %s for %s\n", config.cli, config.outdir, config.company)
 
 	generate(config)
-}
-
-func loadConfig() Config {
-	settings := viper.AllSettings()
-
-	cli := ""
-	if settings["cli"] != nil {
-		cli = settings["cli"].(string)
-	}
-
-	company := ""
-	if settings["company"] != nil {
-		company = settings["company"].(string)
-	}
-
-	outdir := ""
-	if settings["outdir"] != nil {
-		outdir = settings["outdir"].(string)
-	}
-
-	return Config{cli, company, outdir}
 }
 
 func generate(config Config) {
