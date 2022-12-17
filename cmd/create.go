@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/user"
 	"path/filepath"
 	"regexp"
 
@@ -83,28 +82,6 @@ func createOutDir(config Config) {
 	if err := os.MkdirAll(path, 0755); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func outDirPath(config Config) string {
-	path := os.ExpandEnv(config.outdir)
-
-	if !filepath.IsAbs(path) {
-		if path[0] == '~' {
-			usr, err := user.Current()
-			if err != nil {
-				log.Fatal(err)
-			}
-			path = filepath.Join(usr.HomeDir, path[1:])
-		} else {
-			workDir, err := os.Getwd()
-			if err != nil {
-				log.Fatal(err)
-			}
-			path = filepath.Join(workDir, path)
-		}
-	}
-
-	return filepath.Clean(path)
 }
 
 func initOutConfig(config Config) error {
