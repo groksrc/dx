@@ -38,7 +38,7 @@ var Parent string
 var Body string
 
 func init() {
-	cliCmd.AddCommand(addCmd)
+	rootCmd.AddCommand(addCmd)
 
 	addCmd.Flags().StringVarP(&Body, "body", "b", "", "The body of the command")
 	addCmd.MarkFlagRequired("body")

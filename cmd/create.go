@@ -36,7 +36,7 @@ See the dx README for more information about configuration.
 }
 
 func init() {
-	cliCmd.AddCommand(createCmd)
+	rootCmd.AddCommand(createCmd)
 }
 
 func create(args []string) {

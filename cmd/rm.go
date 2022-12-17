@@ -42,7 +42,7 @@ If the command has children, the children will be removed as well.
 }
 
 func init() {
-	cliCmd.AddCommand(rmCmd)
+	rootCmd.AddCommand(rmCmd)
 }
 
 func remove(command string) {
