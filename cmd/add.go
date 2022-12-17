@@ -18,7 +18,6 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -83,10 +82,6 @@ func outCommandToMap(data OutCommand) map[string]interface{} {
 	outCmd["body"] = data.Body
 	outCmd["full"] = data.Full
 	return outCmd
-}
-
-func outConfigFile(config Config) string {
-	return filepath.Join(config.outdir, config.cli, fmt.Sprintf(".%s.yaml", config.cli))
 }
 
 func validateAdd(commands []map[string]interface{}, data OutCommand) {

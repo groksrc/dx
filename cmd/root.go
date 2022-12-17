@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -119,6 +120,10 @@ func loadConfig() Config {
 	}
 
 	return Config{cli, company, outdir}
+}
+
+func outConfigFile(config Config) string {
+	return filepath.Join(config.outdir, config.cli, fmt.Sprintf(".%s.yaml", config.cli))
 }
 
 func loadOutConfig(config Config) OutConfig {
