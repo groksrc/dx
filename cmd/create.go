@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
+	"os/user"
 	"path/filepath"
 	"regexp"
 
@@ -56,7 +56,9 @@ func create(args []string) {
 
 	validate(config)
 
-	fmt.Printf("Creating %s CLI in %s for %s\n", config.cli, config.outdir, config.company)
+	outDir := outDirPath(config)
+
+	fmt.Printf("Creating %s CLI in %s for %s\n", config.cli, outDir, config.company)
 
 	generate(config)
 }
@@ -69,38 +71,46 @@ func generate(config Config) {
 }
 
 func render(config Config) {
-	installCobra()
-	cobraInit(config)
-	if err := viperInit(config); err != nil {
-		log.Fatal((err))
+	createOutDir(config)
+	if err := initOutConfig(config); err != nil {
+		log.Fatal(err)
 	}
 }
 
-func installCobra() {
-	if _, err := exec.LookPath("cobra-cli"); err != nil {
-		fmt.Println("Installing Cobra")
-		cmd := exec.Command("go", "install", "github.com/spf13/cobra-cli@latest")
-		if err := cmd.Run(); err != nil {
-			log.Fatal(err)
+func createOutDir(config Config) {
+	path := outDirPath(config)
+
+	if err := os.MkdirAll(path, 0755); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func outDirPath(config Config) string {
+	path := os.ExpandEnv(config.outdir)
+
+	if !filepath.IsAbs(path) {
+		if path[0] == '~' {
+			usr, err := user.Current()
+			if err != nil {
+				log.Fatal(err)
+			}
+			path = filepath.Join(usr.HomeDir, path[1:])
+		} else {
+			workDir, err := os.Getwd()
+			if err != nil {
+				log.Fatal(err)
+			}
+			path = filepath.Join(workDir, path)
 		}
 	}
+
+	return filepath.Clean(path)
 }
 
-func cobraInit(config Config) {
-	if err := os.Chdir(config.outdir); err != nil {
-		log.Fatal(err)
-	}
+func initOutConfig(config Config) error {
 
-	cmd := exec.Command("cobra-cli", "init", config.cli)
-	if err := cmd.Run(); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func viperInit(config Config) error {
-
-	// TODO: Fix relative paths, ~, $HOME, etc
-	filePath := filepath.Join(config.outdir, config.cli, fmt.Sprintf(".%s.yaml", config.cli))
+	outDir := outDirPath(config)
+	filePath := filepath.Join(outDir, fmt.Sprintf(".%s.yaml", config.cli))
 
 	f, err := os.Create(filePath)
 	if err != nil {
@@ -124,8 +134,8 @@ func viperInit(config Config) error {
 
 func validate(config Config) {
 	validateCli(config.cli)
-	validateOutdir(config.outdir)
-	validateCompany(config.company)
+	validateRequired(config.outdir, "outdir")
+	validateRequired(config.company, "company")
 }
 
 func validateCli(cli string) {
@@ -133,15 +143,6 @@ func validateCli(cli string) {
 	if regexp.MustCompile(`\s`).MatchString(cli) {
 		log.Fatal("cli name cannot contain whitespace")
 	}
-}
-
-func validateOutdir(outdir string) {
-	validateRequired(outdir, "outdir")
-	// TODO: validate path
-}
-
-func validateCompany(company string) {
-	validateRequired(company, "company")
 }
 
 func validateRequired(val string, name string) {
