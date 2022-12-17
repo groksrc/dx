@@ -17,12 +17,11 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 )
 
 // addCmd represents the add command
@@ -54,34 +53,35 @@ type OutConfig struct {
 }
 
 type OutCommand struct {
-	Name   string `yaml:"name"`
-	Body   string `yaml:"body"`
-	Parent string `yaml:"parent"`
+	Name string `yaml:"name"`
+	Body string `yaml:"body"`
+	Full string `yaml:"full"`
 }
 
 func addOutCommand(cmd *cobra.Command, args []string) {
+	full := []string{Parent, args[0]}
 	data := OutCommand{
-		Name:   args[0],
-		Body:   Body,
-		Parent: Parent,
+		Name: args[0],
+		Body: Body,
+		Full: strings.TrimLeft(strings.Join(full, " "), " "),
 	}
 
 	config := loadConfig()
-	configMap := loadConfigMap(config)
+	outConfig := loadOutConfig(config)
 
-	validateAdd(configMap.Commands, data)
+	validateAdd(outConfig.Commands, data)
 
 	outCmdMap := outCommandToMap(data)
-	configMap.Commands = append(configMap.Commands, outCmdMap)
+	outConfig.Commands = append(outConfig.Commands, outCmdMap)
 
-	save(configMap, config)
+	save(outConfig, config)
 }
 
 func outCommandToMap(data OutCommand) map[string]interface{} {
 	outCmd := make(map[string]interface{})
 	outCmd["name"] = data.Name
 	outCmd["body"] = data.Body
-	outCmd["parent"] = data.Parent
+	outCmd["full"] = data.Full
 	return outCmd
 }
 
@@ -89,54 +89,13 @@ func outConfigFile(config Config) string {
 	return filepath.Join(config.outdir, config.cli, fmt.Sprintf(".%s.yaml", config.cli))
 }
 
-func loadConfigMap(config Config) OutConfig {
-	// Open the YAML file
-	yamlFile, err := ioutil.ReadFile(outConfigFile(config))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Unmarshal the YAML file into a map
-	var outConfig OutConfig
-	err = yaml.Unmarshal(yamlFile, &outConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return outConfig
-}
-
-// Recursive function to search a yaml file for a specific key/value pair
-func findOutCommand(data []map[string]interface{}, key string) bool {
-	for _, v := range data {
-		if v["name"] == key {
-			return true
-		}
-	}
-	return false
-}
-
-func save(configMap OutConfig, config Config) {
-	// Marshal the map back into YAML
-	yamlData, err := yaml.Marshal(configMap)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Write the YAML data to the file
-	err = ioutil.WriteFile(outConfigFile(config), yamlData, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func validateAdd(commands []map[string]interface{}, data OutCommand) {
-	if findOutCommand(commands, data.Name) {
+	if commandExists(commands, data.Full) {
 		// TODO: ask if they want to overwrite
-		log.Fatal(fmt.Sprintf("A command with the name '%s' already exists", data.Name))
+		log.Fatal(fmt.Sprintf("A command named '%s' already exists", data.Full))
 	}
 
-	if Parent != "" && !findOutCommand(commands, data.Parent) {
-		log.Fatal(fmt.Sprintf("A parent command with the name '%s' was not found", data.Parent))
+	if Parent != "" && !commandExists(commands, Parent) {
+		log.Fatal(fmt.Sprintf("A parent command named '%s' was not found", Parent))
 	}
 }
