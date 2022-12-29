@@ -19,7 +19,6 @@ func main() {
 package cmd
 
 import (
-	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -79,6 +78,8 @@ func initConfig() {
 
 	import (
 		"fmt"
+		"os"
+		"os/exec"
 
 		"github.com/spf13/cobra"
 	)
@@ -94,7 +95,9 @@ func initConfig() {
 	This application is a tool to generate the needed files
 	to quickly create a Cobra application.` + "`" + `,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("{{ .CommandName }} called")
+			command := exec.Command("bash", "-c", "{{ .Body }}")
+			command.Stdout = os.Stdout
+			command.Run()
 		},
 	}
 
