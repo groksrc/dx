@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"text/template"
 
 	"github.com/spf13/cobra"
@@ -44,7 +45,7 @@ func generate() {
 	generateRoot(config)
 
 	for _, c := range configMap.Commands {
-		generateCommand(c)
+		generateCommand(config, c)
 	}
 
 	tidy(config)
@@ -73,10 +74,34 @@ func generateRoot(config DxConfig) {
 	generateFile("cmd/root.go", config)
 }
 
-func generateCommand(command map[string]interface{}) {
-	// open file
+func generateCommand(config DxConfig, command map[string]interface{}) {
+	cmd := strings.Split(command["full"].(string), " ")
+	parent := cmd[:len(cmd)-1]
+	outCmdData := OutCommandData{
+		CommandName: command["name"].(string),
+		CommandVar:  generateCommandName(cmd),
+		Parent:      generateCommandName(parent),
+		Body:        command["body"].(string),
+	}
+	// fmt.Println(outCmdData)
+	generateCommandFile(config.OutDir, outCmdData)
+}
 
-	//
+func generateCommandName(commands []string) string {
+	if len(commands) == 0 {
+		return "root"
+	}
+
+	names := make([]string, len(commands))
+	for i, x := range commands {
+		if i == 0 {
+			names[i] = x
+		} else {
+			names[i] = strings.Title(x)
+		}
+	}
+
+	return strings.Join(names, "")
 }
 
 func run(config DxConfig, args ...string) {
@@ -98,6 +123,27 @@ func generateFile(file string, config DxConfig) {
 
 	t := template.Must(template.New(file).Parse(Templates[file]))
 	err = t.Execute(f, config)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+type OutCommandData struct {
+	CommandName,
+	CommandVar,
+	Parent,
+	Body string
+}
+
+func generateCommandFile(path string, outCmd OutCommandData) {
+	f, err := os.Create(fmt.Sprintf("%s/cmd/%s.go", path, outCmd.CommandVar))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	t := template.Must(template.New("command").Parse(Templates["command"]))
+	err = t.Execute(f, outCmd)
 	if err != nil {
 		log.Fatal(err)
 	}

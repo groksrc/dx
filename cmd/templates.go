@@ -70,9 +70,36 @@ func initConfig() {
 
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatal(err)
-	}
+	viper.ReadInConfig()
 }
-`}
+`,
+	// command
+	"command": `
+	package cmd
+
+	import (
+		"fmt"
+
+		"github.com/spf13/cobra"
+	)
+
+	// {{ .CommandVar }}Cmd represents the {{ .CommandName }} command
+	var {{ .CommandVar }}Cmd = &cobra.Command{
+		Use:   "{{ .CommandName }}",
+		Short: "A brief description of your command",
+		Long: ` + "`" + `A longer description that spans multiple lines and likely contains examples
+	and usage of using your command. For example:
+
+	Cobra is a CLI library for Go that empowers applications.
+	This application is a tool to generate the needed files
+	to quickly create a Cobra application.` + "`" + `,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("{{ .CommandName }} called")
+		},
+	}
+
+	func init() {
+		{{ .Parent }}Cmd.AddCommand({{ .CommandVar }}Cmd)
+	}
+`,
+}
