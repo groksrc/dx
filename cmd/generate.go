@@ -74,14 +74,14 @@ func generateRoot(config DxConfig) {
 	generateFile("cmd/root.go", config)
 }
 
-func generateCommand(config DxConfig, command map[string]interface{}) {
-	cmd := strings.Split(command["full"].(string), " ")
+func generateCommand(config DxConfig, command map[string]string) {
+	cmd := strings.Split(command["full"], " ")
 	parent := cmd[:len(cmd)-1]
 	outCmdData := OutCommandData{
-		CommandName: command["name"].(string),
+		CommandName: command["name"],
 		CommandVar:  generateCommandName(cmd),
 		Parent:      generateCommandName(parent),
-		Body:        command["body"].(string),
+		Body:        command["body"],
 	}
 	// fmt.Println(outCmdData)
 	generateCommandFile(config.OutDir, outCmdData)

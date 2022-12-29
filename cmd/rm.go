@@ -59,11 +59,11 @@ func remove(command string) {
 	save(outConfig, config)
 }
 
-func removeChildren(data []map[string]interface{}, command string) []map[string]interface{} {
-	var commands []map[string]interface{}
+func removeChildren(data []map[string]string, command string) []map[string]string {
+	var commands []map[string]string
 
 	for _, m := range data {
-		if !strings.HasPrefix(m["full"].(string), command) {
+		if !strings.HasPrefix(m["full"], command) {
 			commands = append(commands, m)
 		}
 	}

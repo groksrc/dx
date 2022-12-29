@@ -46,9 +46,9 @@ func init() {
 }
 
 type OutConfig struct {
-	Cli      string                   `yaml:"cli"`
-	Company  string                   `yaml:"company"`
-	Commands []map[string]interface{} `yaml:"commands"`
+	Cli      string              `yaml:"cli"`
+	Company  string              `yaml:"company"`
+	Commands []map[string]string `yaml:"commands"`
 }
 
 type OutCommand struct {
@@ -76,15 +76,15 @@ func addOutCommand(cmd *cobra.Command, args []string) {
 	save(outConfig, config)
 }
 
-func outCommandToMap(data OutCommand) map[string]interface{} {
-	outCmd := make(map[string]interface{})
+func outCommandToMap(data OutCommand) map[string]string {
+	outCmd := make(map[string]string)
 	outCmd["name"] = data.Name
 	outCmd["body"] = data.Body
 	outCmd["full"] = data.Full
 	return outCmd
 }
 
-func validateAdd(commands []map[string]interface{}, data OutCommand) {
+func validateAdd(commands []map[string]string, data OutCommand) {
 	if commandExists(commands, data.Full) {
 		// TODO: ask if they want to overwrite
 		log.Fatal(fmt.Sprintf("A command named '%s' already exists", data.Full))

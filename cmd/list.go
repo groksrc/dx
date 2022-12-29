@@ -46,10 +46,10 @@ func listCommands() {
 	}
 }
 
-func list(data []map[string]interface{}) []string {
+func list(data []map[string]string) []string {
 	var out []string
 	for _, v := range data {
-		out = append(out, v["full"].(string))
+		out = append(out, v["full"])
 	}
 	sort.Strings(out)
 	return out

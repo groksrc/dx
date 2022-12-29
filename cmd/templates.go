@@ -77,7 +77,6 @@ func initConfig() {
 	package cmd
 
 	import (
-		"fmt"
 		"os"
 		"os/exec"
 
@@ -95,7 +94,7 @@ func initConfig() {
 	This application is a tool to generate the needed files
 	to quickly create a Cobra application.` + "`" + `,
 		Run: func(cmd *cobra.Command, args []string) {
-			command := exec.Command("bash", "-c", "{{ .Body }}")
+			command := exec.Command("bash", "-c", ` + "`" + `{{ .Body }}` + "`" + `)
 			command.Stdout = os.Stdout
 			command.Run()
 		},

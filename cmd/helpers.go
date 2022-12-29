@@ -16,7 +16,7 @@ import (
 
 type DxConfig struct{ Cli, Company, Description, OutDir string }
 
-func commandExists(data []map[string]interface{}, full string) bool {
+func commandExists(data []map[string]string, full string) bool {
 	for _, v := range data {
 		if v["full"] == full {
 			return true
