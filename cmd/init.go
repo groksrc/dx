@@ -18,8 +18,8 @@ package cmd
 
 import (
 	"bufio"
-	"log"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -52,16 +52,6 @@ See the dx README for more information about configuration.
 
 func init() {
 	rootCmd.AddCommand(initCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// initCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func setDefault(params ...string) {
@@ -69,7 +59,7 @@ func setDefault(params ...string) {
 	reader := bufio.NewReader(os.Stdin)
 	val, err := reader.ReadString('\n')
 	if err != nil {
-			log.Fatal(err)
+		log.Fatal(err)
 	}
 
 	if val == "\n" && len(params) == 3 {
@@ -83,6 +73,7 @@ func initializeConfig(cmd *cobra.Command, args []string) {
 	viper.SafeWriteConfig()
 	setDefault("company", "Enter your company name:")
 	setDefault("cli", "Enter cli name:")
+	setDefault("description", "Enter a description for your CLI. Displayed by running the root command:")
 	setDefault("outdir", "Enter the output directory: [./out]", "./out")
 	if err := viper.WriteConfig(); err != nil {
 		log.Fatal(err)
@@ -96,7 +87,7 @@ func overwrite(message string, cmd *cobra.Command, args []string) {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	yes := scanner.Text()
-	if (slices.Contains([]string{"Y", "y", ""}, yes)) {
+	if slices.Contains([]string{"Y", "y", ""}, yes) {
 		initializeConfig(cmd, args)
 	}
 }

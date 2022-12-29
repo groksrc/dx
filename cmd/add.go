@@ -65,7 +65,7 @@ func addOutCommand(cmd *cobra.Command, args []string) {
 		Full: strings.TrimLeft(strings.Join(full, " "), " "),
 	}
 
-	config := loadConfig()
+	config := loadDxConfig()
 	outConfig := loadOutConfig(config)
 
 	validateAdd(outConfig.Commands, data)

@@ -46,7 +46,7 @@ func init() {
 }
 
 func remove(command string) {
-	config := loadConfig()
+	config := loadDxConfig()
 	outConfig := loadOutConfig(config)
 
 	message := fmt.Sprintf("This will remove the command '%s' and any children of this command. Continue? [Y/n]", command)

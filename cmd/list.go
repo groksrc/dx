@@ -38,7 +38,7 @@ func init() {
 }
 
 func listCommands() {
-	config := loadConfig()
+	config := loadDxConfig()
 	configMap := loadOutConfig(config)
 	commands := list(configMap.Commands)
 	for _, cmd := range commands {
