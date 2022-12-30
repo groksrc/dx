@@ -99,7 +99,7 @@ func initOutConfig(config DxConfig) error {
 	stringsToWrite := []string{
 		fmt.Sprintf("cli: %s\n", config.Cli),
 		fmt.Sprintf("company: %s\n", config.Company),
-		fmt.Sprintf("commands:\n")}
+		"commands:\n"}
 
 	for _, str := range stringsToWrite {
 		if _, err = f.WriteString(str); err != nil {

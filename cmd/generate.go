@@ -12,7 +12,16 @@ import (
 	"text/template"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
+
+type OutCommandData struct {
+	CommandName,
+	CommandVar,
+	Parent,
+	Body string
+}
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -60,9 +69,6 @@ func compile(config DxConfig) {
 }
 
 func generateGoMod(config DxConfig) {
-	// cmd := exec.Command("go", "mod", "init", config.Cli)
-	// cmd.Dir = config.OutDir
-	// cmd.Run()
 	run(config, "mod", "init", config.Cli)
 }
 
@@ -92,12 +98,13 @@ func generateCommandName(commands []string) string {
 		return "root"
 	}
 
+	caser := cases.Title(language.English)
 	names := make([]string, len(commands))
 	for i, x := range commands {
 		if i == 0 {
 			names[i] = x
 		} else {
-			names[i] = strings.Title(x)
+			names[i] = caser.String(x)
 		}
 	}
 
@@ -126,13 +133,6 @@ func generateFile(file string, config DxConfig) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-type OutCommandData struct {
-	CommandName,
-	CommandVar,
-	Parent,
-	Body string
 }
 
 func generateCommandFile(path string, outCmd OutCommandData) {

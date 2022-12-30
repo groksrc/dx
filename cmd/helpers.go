@@ -3,7 +3,6 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
@@ -58,7 +57,7 @@ func outConfigFile(config DxConfig) string {
 
 func loadOutConfig(config DxConfig) OutConfig {
 	// Open the YAML file
-	yamlFile, err := ioutil.ReadFile(outConfigFile(config))
+	yamlFile, err := os.ReadFile(outConfigFile(config))
 	if err != nil {
 		log.Println(err)
 		log.Fatal("Does the CLI need to be created?")
@@ -118,7 +117,7 @@ func save(configMap OutConfig, config DxConfig) {
 	}
 
 	// Write the YAML data to the file
-	err = ioutil.WriteFile(outConfigFile(config), yamlData, 0644)
+	err = os.WriteFile(outConfigFile(config), yamlData, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}

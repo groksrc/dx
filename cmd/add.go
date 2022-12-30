@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -87,10 +86,10 @@ func outCommandToMap(data OutCommand) map[string]string {
 func validateAdd(commands []map[string]string, data OutCommand) {
 	if commandExists(commands, data.Full) {
 		// TODO: ask if they want to overwrite
-		log.Fatal(fmt.Sprintf("A command named '%s' already exists", data.Full))
+		log.Fatalf("A command named '%s' already exists", data.Full)
 	}
 
 	if Parent != "" && !commandExists(commands, Parent) {
-		log.Fatal(fmt.Sprintf("A parent command named '%s' was not found", Parent))
+		log.Fatalf("A parent command named '%s' was not found", Parent)
 	}
 }
