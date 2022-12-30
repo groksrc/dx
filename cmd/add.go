@@ -76,11 +76,11 @@ func addOutCommand(cmd *cobra.Command, args []string) {
 }
 
 func outCommandToMap(data OutCommand) map[string]string {
-	outCmd := make(map[string]string)
-	outCmd["name"] = data.Name
-	outCmd["body"] = data.Body
-	outCmd["full"] = data.Full
-	return outCmd
+	return map[string]string{
+		"name": data.Name,
+		"body": data.Body,
+		"full": data.Full,
+	}
 }
 
 func validateAdd(commands []map[string]string, data OutCommand) {
